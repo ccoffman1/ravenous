@@ -10,13 +10,19 @@ const Yelp = {
         }
         return fetch(`https://cors-anywhere.herokuapp.com/https://api.yelp.com/oauth2/token?grant_type=client_credentials&client_id=${clientId}&client_secret=${secret}`,{
             method: 'POST'}).then(response => { if (response.ok) { return response.json();
-            }throw new Error('Network response was not ok.');}).then(jsonResponse => { accessToken = jsonResponse.access_token;});
+            }throw new Error('Network response was not ok.');}, networkError => {
+                console.log(networkError.message);
+              }
+            ).then(jsonResponse => { accessToken = jsonResponse.access_token;});
     },
 
     search(term,location,sortBy){
         return Yelp.getAccessToken().then(() => {return fetch(`https://api.yelp.com/v3/businesses/search?term=${term}&location=${location}&sort_by=${sortBy}`,{method:'GET',headers:{Authorization: `Bearer ${accessToken}`}}
     ).then(response => { if (response.ok) { return response.json();
-    }throw new Error('Network response was not ok.');}).then(jsonResponse => {if (jsonResponse.businesses) {
+    }throw new Error('Network response was not ok.');}, networkError => {
+        console.log(networkError.message);
+      }
+    ).then(jsonResponse => {if (jsonResponse.businesses) {
         return jsonResponse.businesses.map(business => {
             return {
                 id: business.id,
